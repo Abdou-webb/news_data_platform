@@ -1,0 +1,12 @@
+news_data_platform:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PG_HOST', 'localhost') }}"
+      port: "{{ env_var('PG_PORT', '5432') | int }}"
+      user: "{{ env_var('PG_USER', 'dw_user') }}"
+      password: "{{ env_var('PG_PASSWORD', 'dw_password') }}"
+      dbname: "{{ env_var('PG_DB', 'datawarehouse') }}"
+      schema: public
+      threads: 4

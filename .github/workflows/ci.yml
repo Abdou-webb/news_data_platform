@@ -1,0 +1,84 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── Python Linting ────────────────────────────────────────────────────────
+  lint:
+    name: Python Lint (flake8)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install linting dependencies
+        run: pip install flake8
+
+      - name: Run flake8
+        run: |
+          flake8 scrapers/ transformations/ dags/ \
+            --max-line-length=120 \
+            --exclude=__pycache__ \
+            --count --statistics
+
+  # ─── dbt Model Validation ──────────────────────────────────────────────────
+  dbt-validate:
+    name: dbt Parse + Compile Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt-postgres
+        run: pip install dbt-postgres
+
+      - name: Write dbt profiles (CI uses env vars)
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          news_data_platform:
+            target: ci
+            outputs:
+              ci:
+                type: postgres
+                host: localhost
+                port: 5432
+                user: ci_user
+                password: ci_password
+                dbname: ci_db
+                schema: public
+                threads: 1
+          EOF
+
+      - name: dbt parse (validates SQL models without a DB connection)
+        working-directory: dbt_transform
+        run: dbt parse --profiles-dir ~/.dbt
+
+      - name: dbt compile (generates compiled SQL for review)
+        working-directory: dbt_transform
+        run: dbt compile --profiles-dir ~/.dbt
+
+  # ─── Docker Compose Validation ─────────────────────────────────────────────
+  docker-validate:
+    name: Docker Compose Config Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env from example
+        run: cp .env.example .env
+
+      - name: Validate docker-compose.yml syntax
+        run: docker compose config --quiet

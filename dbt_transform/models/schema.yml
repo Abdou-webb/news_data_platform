@@ -1,0 +1,105 @@
+version: 2
+
+sources:
+  - name: gold
+    description: "Gold layer — raw articles loaded by the Python pipeline into PostgreSQL."
+    schema: public
+    tables:
+      - name: articles_gold
+        description: "Raw articles table populated by silver_to_gold.py."
+        columns:
+          - name: id
+            description: "Unique article identifier (UUID)."
+          - name: title
+            description: "Article title."
+          - name: author
+            description: "Article author or source name."
+          - name: category
+            description: "Editorial category (Tech, General, etc.)."
+          - name: content
+            description: "Full article text, HTML-stripped."
+          - name: source
+            description: "Name of the RSS source (BBC Technology, Hacker News, TechCrunch)."
+          - name: url
+            description: "Original article URL."
+          - name: date
+            description: "Article publication date."
+          - name: processed_at
+            description: "Timestamp when the article entered the Silver layer."
+          - name: processed_by
+            description: "Processing layer identifier (always 'silver')."
+
+models:
+
+  # ── Staging ───────────────────────────────────────────────────────────────────
+  - name: stg_articles
+    description: >
+      Cleaned and deduplicated articles from the Gold source table.
+      Applies type casting, lowercasing and filters out records with missing
+      critical fields. This is the single source of truth for all downstream marts.
+    columns:
+      - name: article_id
+        description: "Surrogate key — UUID from source."
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Article title, trimmed."
+        tests:
+          - not_null
+      - name: source
+        description: "RSS source name."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['BBC Technology', 'Hacker News', 'TechCrunch']
+      - name: content
+        description: "Article full text."
+        tests:
+          - not_null
+      - name: published_at
+        description: "Parsed publication date."
+      - name: ingested_at
+        description: "When the article was processed by the Silver layer."
+
+  # ── Marts ─────────────────────────────────────────────────────────────────────
+  - name: mart_articles_by_source
+    description: "Article count and latest ingestion date grouped by RSS source."
+    columns:
+      - name: source
+        tests:
+          - unique
+          - not_null
+      - name: article_count
+        tests:
+          - not_null
+
+  - name: mart_articles_by_category
+    description: "Article count grouped by editorial category."
+    columns:
+      - name: category
+        tests:
+          - not_null
+      - name: article_count
+        tests:
+          - not_null
+
+  - name: mart_daily_volume
+    description: "Number of articles published per day — used for time-series charts in Metabase."
+    columns:
+      - name: published_date
+        tests:
+          - not_null
+      - name: article_count
+        tests:
+          - not_null
+
+  - name: mart_top_authors
+    description: "Top authors ranked by total article count."
+    columns:
+      - name: author
+        tests:
+          - not_null
+      - name: article_count
+        tests:
+          - not_null

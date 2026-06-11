@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+
+# Environment variables — NEVER commit this file
+.env
+
+# Airflow runtime files
+logs/
+plugins/
+
+# dbt artifacts
+dbt_transform/target/
+dbt_transform/dbt_packages/
+dbt_transform/logs/
+
+# Terraform state & sensitive files — NEVER commit these
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Pre-downloaded pip wheels for offline Docker build
+docker_packages/
