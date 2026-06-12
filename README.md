@@ -232,4 +232,4 @@ cd dbt_transform && dbt test
 
 ---
 
-*Built by Talib Abdeljalil & Saji Adnane*
+*Built by Talib Abdeljalil*
