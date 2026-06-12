@@ -16,6 +16,10 @@
 </div>
 
 ---
+## 🎯 Business Context & Value
+This project demonstrates a production-ready Modern Data Stack designed to solve a common business problem: **ingesting unstructured web data and turning it into reliable, actionable insights.**
+
+Whether dealing with batch data (daily scraping) or streaming data (real-time Kafka events), this infrastructure ensures that downstream consumers (Data Analysts, Machine Learning models) always receive clean, deduplicated, and tested data (Gold layer) without worrying about upstream pipeline failures.
 
 ## Architecture
 
