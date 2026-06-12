@@ -27,14 +27,23 @@ The pipeline follows the **Medallion (Bronze / Silver / Gold)** pattern — a la
 
 ## Screenshots
 
-**Airflow — both pipelines registered (batch + streaming)**
+**Airflow — both pipelines registered (batch daily + streaming hourly)**
 ![Airflow DAG list](docs/airflow_dags.png)
 
 **Airflow — batch pipeline run: all 4 tasks successful**
 ![Airflow graph view — all tasks green](docs/airflow_graph.png)
 
-**Airflow — DAG source code live view**
-![Airflow DAG code](docs/airflow_code.png)
+**Metabase — analytics dashboard (120 articles, 3 sources, daily volume trend)**
+![Metabase analytics dashboard](docs/metabase_dashboard.png)
+
+**MinIO — Bronze, Silver and Gold data lake buckets**
+![MinIO bucket list](docs/minio_buckets.png)
+
+**MinIO — Bronze bucket: raw JSON files from each daily scrape run**
+![MinIO bronze bucket contents](docs/minio_bronze.png)
+
+**MinIO — Silver bucket: cleaned articles ready for Gold load**
+![MinIO silver bucket contents](docs/minio_silver.png)
 
 
 | Layer | Storage | What's in it |
